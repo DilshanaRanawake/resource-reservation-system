@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ReservationStatus {
+  pending
+  confirmed
+  cancelled
+}
+
+model User {
+  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email        String        @unique
+  name         String
+  reservations Reservation[]
+
+  @@map("users")
+}
+
+model Resource {
+  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String
+  active       Boolean       @default(true)
+  reservations Reservation[]
+
+  @@map("resources")
+}
+
+/// Confirmed reservations for the same resource cannot overlap.
+/// The range is half-open [start_time, end_time), so back-to-back bookings are allowed.
+/// That rule is a Postgres exclusion constraint in the SQL migration, not only application code.
+model Reservation {
+  id         String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  resourceId String            @map("resource_id") @db.Uuid
+  userId     String            @map("user_id") @db.Uuid
+  title      String
+  startTime  DateTime          @map("start_time") @db.Timestamptz(6)
+  endTime    DateTime          @map("end_time") @db.Timestamptz(6)
+  status     ReservationStatus @default(pending)
+
+  resource Resource @relation(fields: [resourceId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+
+  @@map("reservations")
+}
