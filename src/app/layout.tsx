@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { connection } from "next/server";
 import { Source_Sans_3 } from "next/font/google";
-import { NavLinks } from "@/components/nav-links";
+import { NavLinks, NavLinksFallback } from "@/components/nav-links";
 import { UserSwitcher } from "@/components/user-switcher";
 import { Toaster } from "@/components/ui/sonner";
 import { readCurrentUserId, resolveCurrentUserId } from "@/lib/current-user";
@@ -37,7 +37,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                 </Suspense>
               </div>
             </div>
-            <NavLinks />
+            <Suspense fallback={<NavLinksFallback />}>
+              <NavLinks />
+            </Suspense>
           </nav>
         </header>
         <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-6 sm:px-6 sm:py-8">

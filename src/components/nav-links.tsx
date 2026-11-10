@@ -11,13 +11,12 @@ const links = [
   { href: "/calendar", label: "Calendar" },
 ];
 
-export function NavLinks() {
-  const pathname = usePathname();
-
+function NavLinkList({ pathname }: { pathname: string | null }) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 lg:flex lg:items-center">
       {links.map((link) => {
-        const active = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
+        const active =
+          pathname !== null && (link.href === "/" ? pathname === "/" : pathname.startsWith(link.href));
 
         return (
           <Link
@@ -34,4 +33,14 @@ export function NavLinks() {
       })}
     </div>
   );
+}
+
+export function NavLinksFallback() {
+  return <NavLinkList pathname={null} />;
+}
+
+export function NavLinks() {
+  const pathname = usePathname();
+
+  return <NavLinkList pathname={pathname} />;
 }
